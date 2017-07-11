@@ -55,16 +55,18 @@ module.exports = function(options, reporter) {
 				issue.msg = issue.msg || htmllint.messages.renderIssue(issue);
 			});
 
+			var relPath = file.path.replace(file.cwd, "");
+
 			// Add the property htmllint to the file object
 			file.htmllint = {};
 			file.htmllint.success = issues.length === 0;
 			file.htmllint.issues = issues;
 
 			if (typeof reporter === 'function') {
-				reporter(file.path, issues);
+				reporter(relPath, issues);
 			} else {
 				if (issues.length > 0) {
-					out.push('\n' + file.path);
+					out.push('\n' + relPath);
 				}
 
 				issues.forEach(function(issue) {
@@ -74,7 +76,8 @@ module.exports = function(options, reporter) {
 
 			cb(null, file);
 		}).catch(function(error) {
-			out.push('\n' + file.path + '\n' + gutil.colors.red(error.toString()));
+			var relPath = file.path.replace(file.cwd, "");
+			out.push('\n' + relPath + '\n' + gutil.colors.red(error.toString()));
 		});
 	}, function(cb) {
 		if (out.length > 0) {
